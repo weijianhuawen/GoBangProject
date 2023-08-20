@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="china">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./css/common.css">
+    <link rel="stylesheet" href="./css/login.css">
+    <title>五子棋对战登录页面</title>
+</head>
+<body>
+    <!-- 导航栏 -->
+    <div class="nav">
+        <!-- <li>
+            <a href="">111</a>
+        </li> -->
+        <div class="title">在线五子棋小游戏</div>
+    </div>
+
+    <!-- 登录面板 -->
+    <div class="login-container">
+        <div class="login-dialogin">
+            <h3>登录</h3>
+            <div class="row">
+                <span>用户名</span>
+                <input type="text" name="user" id="username">
+            </div>
+            <div class="row">
+                <span>密码</span>
+                <input type="password" name="password" id="password">
+            </div>
+
+            <div class="row">
+                <button id="submit">登录</button>
+            </div>
+            <!-- 已有账户 跳转到登录页面 -->
+            <div class="register">
+                <a href="/register.html">还没有账户?注册</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- 引入jQuery -->
+    <script src="./js/jquery-3.1.1.min.js"></script>
+    <script>
+        let usernameInput = document.querySelector("#username");
+        let passwordInput = document.querySelector("#password");
+        let submitButton = document.querySelector("#submit");
+
+        submitButton.onclick = function() {
+            $.ajax({
+                type : 'post',
+                url : '/login',
+                dataType : 'json',
+                //contentType : 'application/json; charset=utf8',
+                data : {
+                    username : usernameInput.value,
+                    password : passwordInput.value
+                },
+                success : function(body) {
+                    //请求成功
+                    var jresult = JSON.stringify(body);
+                    console.log(jresult);
+                    var result = JSON.parse(jresult);
+                    console.log(result);
+                    console.log(result.isOk);
+                    if (result.isOk) {
+                        var juser = JSON.stringify(body.data);
+                        var user = JSON.parse(juser);
+                        alert("欢迎你！" + user.username + "!即将为你跳转至游戏大厅...");
+                        location.assign("/games_hall.html");
+                    } else {
+                        //清空密码
+                        passwordInput.value = "";
+                        //说明情况
+                        alert(body.message);
+                    }
+                },
+                error : function () {
+                    //出现类似404的错误
+                    alert("登录失败!");
+                }
+            });
+        }
+
+    </script>
+</body>
+</html>

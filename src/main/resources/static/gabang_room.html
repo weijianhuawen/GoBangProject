@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="china">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./css/common.css">
+    <link rel="stylesheet" href="./css/gobang_room.css">
+    <title>五子棋对战游戏对局</title>
+</head>
+
+<body>
+    <!-- 导航栏 -->
+    <div class="nav">
+        <div>在线五子棋对战</div>
+        <div id="replace"></div>
+        <a href="games_hall.html" id="exit_gobang">退出游戏</a>
+        <div id="username">玩家昵称</div>
+    </div>
+    <div class="container">
+        <div class="left">
+            <div class="rule">
+                <div class="notice">计分规则：</div>
+                <div id="rule-content">
+                    玩家初始积分：1500分<br>
+                    获胜方：<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;基础加分：32分，附加分：与对手天梯分绝对值差值的16%，如果对手天梯分更高，比例提升至32%。
+                    <br>失败方：<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp; 基础减分：32分，附减分：如果比对手天梯分更高，减去对手低于你的分值的16%，反之如果对方分数更高，加上对手高于你分数分值部分的16%。
+                    <br>
+                    * 说明： 如果计算的分数为小数，仅取整数部分。
+                </div>
+                
+            </div>
+            <div class="chess-message" id="screen">
+                <div class="notice">通知：</div>
+                <div class="content" id="content">
+                    我方下棋期间，请在棋盘上选择一个位置进行下棋
+                </div>
+            </div>
+            <!-- <back class="back">回到大厅</back> -->
+        </div>
+        <!-- 棋盘 -->
+        <!-- 需要基于canvas实现 画布 -->
+        <div class="right">
+            <div class="chess_board">
+                <!-- 标题 -->
+                <div class="title">
+                    五子棋二人在线实时对战
+                </div>
+                <div class="canvas">
+                    <canvas id="board" width="960px" height="540px"></canvas>
+                </div>
+            
+            </div>
+        </div>
+        
+    </div>
+
+    <script src="./js/canvas_config.js"></script>
+</body>

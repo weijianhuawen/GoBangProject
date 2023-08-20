@@ -1,0 +1,70 @@
+/* 公共样式 */
+
+* {
+    margin: 0;
+    /* 去掉内边距 */
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    height: 100%;
+    background-image: url(../images/backimg.png);
+    /* 不平铺 */
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: cover;
+}
+
+.nav {
+    height: 50px;
+    background-color: rgba(148, 179, 225, 0.5);
+    color: aliceblue;
+    line-height: 50px;
+    padding-left: 20px;
+
+    font-size: 18px;
+    font-weight: 100;
+
+    display: flex;
+    align-items: center;
+}
+
+/* 导航栏用户名显示 */
+.nav #username {
+    flex-grow: 1;
+    font-size: 18px;
+}
+.nav #replace {
+    flex-grow: 12;
+}
+.nav #exit_login, #exit_gobang{
+    flex-grow: 2;
+    font-size: 16px;
+    color: aliceblue;
+    text-decoration: none;
+    text-align: center;
+    font-weight: bolder;
+}
+
+#exit_login:active, #exit_login:hover{
+    color: purple;
+}
+
+#exit_gobang:active, #exit_gobang:hover{
+    color: rgb(200, 200, 200);
+}
+
+.container {
+    /* 占除了导航框以外的空间 */
+    width: 100%;
+    height: calc(100% - 50px);
+
+    display: flex;
+    flex-direction: column;
+    /* 水平居中 */
+    justify-content: center;
+    /* 垂直居中 */
+    align-items: center;
+    
+}

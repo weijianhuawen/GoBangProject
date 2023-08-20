@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.gobang001.dao.UserDao">
+    <insert id="insertUser">
+        insert into user values(null, #{username}, #{email}, #{numbers}, #{password}, 1500, 0, 0, 0.00);
+    </insert>
+    <update id="updateWinnerScore">
+        update user set score=#{winnerScore}, totalCount=totalCount+1, winCount=winCount+1, winRate=100*winCount/totalCount where uid=#{user.uid};
+    </update>
+    <update id="updateLoserScore">
+        update user set score=#{loserScore}, totalCount=totalCount+1, winRate=100*winCount/totalCount where uid=#{user.uid};
+    </update>
+    <update id="updateDrawScore">
+        update user set totalCount=totalCount+1, winRate= 100*winCount/totalCount where uid=#{user.uid};
+    </update>
+
+    <select id="selectUserByName" resultType="com.example.gobang001.mode.User">
+        select * from user where username=#{username};
+    </select>
+</mapper>

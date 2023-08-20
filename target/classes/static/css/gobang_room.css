@@ -1,0 +1,147 @@
+.container {
+    /* 占除了导航框以外的空间 */
+    width: 100%;
+    height: calc(100% - 50px);
+
+    display: flex;
+    flex-direction: row;
+    /* 水平居中 */
+    justify-content: center;
+    /* 垂直居中 */
+    align-items: center;
+    
+}
+
+
+
+.left {
+    width: 32%;
+    height: 90%;
+
+    margin-left: 20px;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.right {
+    width: 68%;
+    height: 95%;
+
+    margin-right: 20px;
+    margin-left: 20px;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.chess_board {
+    width: 100%;
+    height: 95%;
+    background-color:  rgba(207, 213, 232, 0.62);
+
+    border-radius: 10px;
+    margin-bottom: 10px;
+}
+.chess_board .title {
+    font-size: 20px;
+    color: rgba(25, 78, 159, 0.98);;
+    font-weight: 900;
+
+    text-align: center;
+    padding-top: 20px;
+    padding-bottom: 32px;
+    width: 100%;
+    height: 30px;
+
+    line-height: 30px;
+}
+.chess_board .canvas {
+    display: flex;
+    justify-content: center;
+    text-align: center;
+}
+.rule {
+    height: 55%;
+    width: 100%;
+    background-color:  rgba(207, 213, 232, 0.62);
+    border-radius: 10px;
+    margin-bottom: 20px;
+}
+.rule #rule-content {
+    height: 40px;
+    font-size: 16px;
+    font-weight: 600;
+    color: rgba(80, 150, 244, 0.9);
+    border-radius: 10px;
+
+    padding: 18px;
+    line-height: 32px;
+}
+.chess-message {
+    height: 30%;
+    width: 100%;
+    background-color:  rgba(207, 213, 232, 0.62);
+    margin-top: 20px;
+    border-radius: 10px;
+}
+.chess-message #content{
+    height: 40px;
+    font-size: 18px;
+    font-weight: 600;
+    color: rgba(57, 127, 17, 0.88);
+    border-radius: 10px;
+
+    text-align: center;
+    line-height: 32px;
+    margin-top: 20px;
+}
+/* .chess-message .content{
+    height: 40px;
+    font-size: 18px;
+    font-weight: 600;
+    color: rgba(227, 98, 79, 0.88);
+    border-radius: 10px;
+
+    text-align: center;
+    line-height: 32px;
+    
+} */
+
+.notice {
+    height: 24px;
+    font-size: 18px;
+    font-weight: 600;
+    color: rgba(120, 17, 127, 0.88);
+    padding-top: 16px;
+    padding-left: 16px;
+    line-height: 24px;
+}
+
+.back {
+    height: 50px;
+    width: 128px;
+
+    display: block;
+    font-size: 18px;
+    font-weight: 400;
+    color: aliceblue;
+    background-color: rgba(80, 150, 244, 0.9);
+    line-height: 50px;
+    text-align: center;
+    margin-top: 22px;
+    border-radius: 10px;
+}
+
+.back:active {
+    background-color: aliceblue;
+    color: rgba(80, 150, 244, 0.9);
+}
+
+.test {
+    background-color: rgba(202, 80, 66, 0.88);
+}

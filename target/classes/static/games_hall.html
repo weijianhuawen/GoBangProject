@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="china">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./css/common.css">
+    <link rel="stylesheet" href="./css/games_hall.css">
+    <title>五子棋对战游戏大厅</title>
+</head>
+<body>
+    <div class="nav">
+        <div class="title">五子棋游戏大厅页面</div>
+        <div id="replace"></div>
+        <a href="login.html" id="exit_login">退出登录</a>
+        <div id="username">玩家昵称</div>
+    </div>
+    <!-- 匹配模块 -->
+    <div class="container">
+        <!-- 显示用户信息 -->
+        <div id="user-screen">测试内容</div>
+        <!-- 匹配按钮 -->
+        <div id="match-button">开始匹配</div>
+    </div>
+
+    <script src="./js/jquery-3.1.1.min.js"> </script>
+    <script>
+        $.ajax({
+            type : 'get',
+            url : '/userinfo',
+
+            success : function(body) {
+                var jbody = JSON.stringify(body);
+                var result = JSON.parse(jbody);
+                if (result.data == null) {
+                    alert(result.message);
+                    //重定向到登录页面
+                    location.assign("/login.html");
+                    return;
+                }
+                var juser = JSON.stringify(result.data);
+                var user= JSON.parse(juser);
+                
+                var screenDiv = document.querySelector('#user-screen');
+                screenDiv.innerHTML = "玩家： " + user.username + "&nbsp;&nbsp;分数： " + user.score
+                + "<br> 比赛场次: " + user.totalCount + "&nbsp;&nbsp;获胜场数： " + user.winCount
+                + "<br> 胜率： " + user.winRate + " %";
+                //将玩家名称初始化到导航栏里面
+                var usernameNav = document.querySelector('#username');
+                usernameNav.innerHTML = user.username;
+                //初始化websocket
+                var websocketUrl = "ws://" + location.host + "/findMatch"
+                var websocket = new WebSocket(websocketUrl);
+                websocket.onopen = function() {
+                    console.log("开始连接!");
+                }
+
+                websocket.onclose = function() {
+                    console.log("关闭连接!");
+                }
+
+                websocket.error = function() {
+                    console.log("连接出现异常!");
+                }
+
+                //出现页面关闭，需要将websocket关闭
+                window.onbeforeunload = function() {
+                    websocket.close();
+                }
+
+                websocket.onmessage = function(e) {
+                    //处理服务器请求
+                    //解析得到的响应对象
+                    console.log("开始解析websocket!");
+                    var resp = JSON.parse(e.data);
+                    var matchButton = document.querySelector('#match-button');
+                    if (resp.isOk === false) {
+                        console.log("游戏大厅收到失败响应!" + "原因为:" + resp.reason);
+                        return;
+                    }
+
+                    //情况1
+                    var message = resp.message;
+                    console.log(message);
+                    if (message === 'startMatch') {
+                        //开始匹配
+                        console.log("开始匹配，进入匹配队列!");
+                        //调整匹配按钮文本
+                        matchButton.innerHTML = "匹配中...(点击停止匹配!)";
+                    } else if (message === 'stopMatch') {
+                        //离开匹配队列
+                        console.log("离开匹配队列!");
+                        //调整至匹配按钮
+                        matchButton.innerHTML = "开始匹配";
+                    } else if (message === 'matchSuccess') {
+                        //匹配成功
+                        console.log("匹配成功!进入游戏!");
+                        //调转到游戏页面
+                        alert("匹配成功!即将进入游戏...");
+                        //location.assign("/gabang_room.html");
+                        //使用assign用户可以进行回退，而回退并不会刷新页面，换成replace用户就不能回退到上一个页面了
+                        location.replace("/gabang_room.html");
+                    } else if (message === 'repeatConnection') {
+                        alert("检测在多处登录，请使用其他账号登录或者尝试重新登录！");
+                        //定位到登录页面
+                        location.replace("/login.html");
+                    } else {
+                        //出现未知错误
+                        console.log("请求参数错误! message :" + resp.message);
+                    }
+                }
+
+                //给·匹配·按钮添加点击事件
+                var matchButton = document.querySelector("#match-button");
+                matchButton.onclick = function() {
+                    //检查websocket是否正常连接
+                    console.log("点击游戏大厅匹配按钮!");
+                    if (websocket.readyState === websocket.OPEN) {
+                        //连接正常
+                        //获取当前匹配状态
+                        console.log(matchButton.innerHTML);
+                        if (matchButton.innerHTML === "开始匹配") {
+                            //还未匹配
+                            console.log("开始匹配!");
+                            websocket.send(JSON.stringify({
+                                message : 'startMatch'
+                            }));
+                        } else if (matchButton.innerHTML === "匹配中...(点击停止匹配!)") {
+                            //匹配中
+                            console.log("停止匹配!");
+                            websocket.send(JSON.stringify({
+                                message : 'stopMatch'
+                            }));
+                        }
+                    } else {
+                        //连接异常
+                        alert("好像与星球脱轨了，重新登录一下吧!");
+                        location.replace("/login.html");
+                    }
+                }
+            },
+            error : function() {
+                alert("获取用户信息失败！");
+            }
+        });
+    </script>
+</body>
+</html>
