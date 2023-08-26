@@ -3,6 +3,7 @@ package com.example.gobang001.controller;
 import com.example.gobang001.game.OnlineUserManager;
 import com.example.gobang001.game.RoomManager;
 import com.example.gobang001.mode.*;
+import com.example.gobang001.service.RecordService;
 import com.example.gobang001.service.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -32,6 +33,9 @@ public class GameController extends TextWebSocketHandler {
     //用户与战绩表查询
     @Autowired
     private UserService userService;
+    //记录模块服务
+    @Autowired
+    private RecordService recordService;
 
     //上线操作，当玩家跳转到游戏对战页面，我们需要建立两位玩家的会话连接
     private void online(WebSocketSession session) throws IOException  {
@@ -178,7 +182,7 @@ public class GameController extends TextWebSocketHandler {
                 return;
             }
             //执行下棋操作
-            room.putChess(request, onlineUserManager, roomManager, userService);
+            room.putChess(request, onlineUserManager, roomManager, userService, recordService);
         } catch (NullPointerException e) {
             log.info("[websocket请求与响应：游戏对战阶段] 落子请求处理时，用户信息获取失败，大概率用户未登录，也有可能是session获取异常！");
         }
@@ -248,8 +252,14 @@ public class GameController extends TextWebSocketHandler {
             //另外一位玩家会话已经关闭，无法通知
             log.info("[websocket请求与响应：游戏对战阶段] 意外下线通知玩家获胜阶段，被通知玩家会话已被删除，无法进行通知！");
             //按照平手的规则进行结算
-            userService.updateDrawScore(thisPlayer);
-            userService.updateDrawScore(thatPlayer);
+            thisPlayer = userService.findUserByUsername(thisPlayer.getUsername());
+            thatPlayer = userService.findUserByUsername(thatPlayer.getUsername());
+
+            room.equalHandlerScore(thisPlayer, thatPlayer, userService, recordService);
+            //同时掉线分数结算
+            log.info("[websocket游戏对战阶段] 通知另外一位玩家获胜时，由于双方均下线，以平局结算分数！");
+            //销毁游戏房间
+            roomManager.remove(room);
             return;
         }
         //通知另外一位玩家已经获胜
@@ -263,8 +273,11 @@ public class GameController extends TextWebSocketHandler {
         response.setMessage("putChess");
         response.setRow(-1);
         response.setCol(-1);
+        //获取最新的战绩数据
+        thisPlayer = userService.findUserByUsername(thisPlayer.getUsername());
+        thatPlayer = userService.findUserByUsername(thatPlayer.getUsername());
         //结算分数
-        room.handlerScore(thatPlayer, thisPlayer, userService);
+        room.handlerScore(thatPlayer, thisPlayer, userService,  recordService);
         //发送响应
         try {
             session.sendMessage(new TextMessage(objectMapper.writeValueAsString(response)));

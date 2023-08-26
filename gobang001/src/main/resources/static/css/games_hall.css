@@ -11,7 +11,7 @@
     border-radius: 10px;
 }
 
-#match-button {
+#match-button, #record_all, #record_self{
     width: 280px;
     height: 50px;
     font-size: 18px;

@@ -21,6 +21,9 @@
         <div id="user-screen">测试内容</div>
         <!-- 匹配按钮 -->
         <div id="match-button">开始匹配</div>
+
+        <div id="record_all">总对战记录查询</div>
+        <div id="record_self">个人对战记录查询</div>
     </div>
 
     <script src="./js/jquery-3.1.1.min.js"> </script>
@@ -137,6 +140,19 @@
                         alert("好像与星球脱轨了，重新登录一下吧!");
                         location.replace("/login.html");
                     }
+                }
+
+                //全网对战记录查询按钮
+                var recordAllButton = document.querySelector("#record_all");
+                recordAllButton.onclick = function () {
+                   //跳转到全网对战记录页面
+                    location.assign('/play_record.html');
+                }
+                //个人对战记录查询
+                var recordSelfButton = document.querySelector("#record_self");
+                recordSelfButton.onclick = function () {
+                    //跳转到个人对战记录页面
+                    location.assign('/player_record.html');
                 }
             },
             error : function() {

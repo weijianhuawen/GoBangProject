@@ -2,6 +2,7 @@ package com.example.gobang001.mode;
 
 import com.example.gobang001.game.OnlineUserManager;
 import com.example.gobang001.game.RoomManager;
+import com.example.gobang001.service.RecordService;
 import com.example.gobang001.service.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Data;
@@ -82,7 +83,7 @@ public class Room {
     }
 
     //按照玩家的操作进行落子
-    public void putChess(GameRequest request, OnlineUserManager onlineUserManager, RoomManager roomManager, UserService userService) {
+    public void putChess(GameRequest request, OnlineUserManager onlineUserManager, RoomManager roomManager, UserService userService, RecordService recordService) {
         //开始处理落子请求
         log.info("[websocket请求与响应：游戏对战阶段] 落子请求处理！");
         //初始化后端棋盘
@@ -190,20 +191,17 @@ public class Room {
                     log.info("[websocket请求与响应：游戏对战阶段] 房间：" + room.getRid() + "已经销毁！");
                     return;
                 }
-                //获取胜利的玩家并获取数据库中胜利者玩家最新的战绩
-                winner = userService.findUserByUsername(winner.getUsername());
                 //获取失败方对象
                 User loser = Objects.equals(players[0].getUid(), winnerUid) ? players[1] : players[0];
                 //获取失败方最新的战绩
                 loser = userService.findUserByUsername(loser.getUsername());
                 //按照规则更新玩家的分数，计算结算后胜利者的分数
-                handlerScore(winner, loser, userService);
+                handlerScore(winner, loser, userService, recordService);
                 //战绩记录变换表更新（备用）
             } else {
                 //两方打成平手
                 //更新战绩
-                userService.updateDrawScore(players[0]);
-                userService.updateDrawScore(players[1]);
+                equalHandlerScore(players[0], players[1], userService, recordService);
                 log.info("[websocket请求与响应：游戏对战阶段] 两方打平，成绩已结算！");
             }
             //销毁房间
@@ -301,7 +299,7 @@ public class Room {
      *     如果计算的分数为小数，仅取整数部分。
      */
     //正常规则结算
-    public void handlerScore(User winner, User loser, UserService userService) {
+    public void handlerScore(User winner, User loser, UserService userService, RecordService recordService) {
         int winnerScore = winner.getScore();
         int loserScore = loser.getScore();
         int originWinnerScore = winnerScore;
@@ -319,8 +317,78 @@ public class Room {
         //更新数据库中的战绩数据
         userService.updateWinnerScore(winner, winnerScore);
         userService.updateLoserScore(loser, loserScore);
+
         log.info("[websocket请求与响应：游戏对战阶段] 获胜方是：" + winner.getUsername() + "结算后分数为：" + winnerScore + "增加了" + (winnerScore - originWinnerScore) + "分");
         log.info("[websocket请求与响应：游戏对战阶段] 失败方是：" + loser.getUsername() + "结算后分数为：" + loserScore + "增加了" + (loserScore - originLoserScore) + "分");
+        //记录对局数据
+        GobangPlayRecord record1 = new GobangPlayRecord();
+        GobangPlayRecord record2 = new GobangPlayRecord();
+
+        Integer changeNum1 = winnerScore - originWinnerScore;
+        Integer changeNum2 = loserScore - originLoserScore;
+        log.info("[websocket请求与响应：游戏对战阶段] 玩家1：" + winner.getUsername() + "，开始记录对战记录！");
+        record1.setUid1(winner.getUid());
+        record1.setUid2(loser.getUid());
+        record1.setEnemy(loser.getUsername());
+        record1.setOldScore(originWinnerScore);
+        record1.setChangeNum(changeNum1);
+        record1.setTotalCount(winner.getTotalCount() + 1);
+        record1.setWinnerCount(winner.getWinCount() + 1);
+        record1.setWinnerRate(100.00 * record1.getWinnerCount() / record1.getTotalCount());
+        record1.setIsWinner(true);
+        record1.setLastScore(winnerScore);
+        log.info("[websocket请求与响应：游戏对战阶段] 玩家1：" + winner.getUsername() + "，完成记录对战记录！");
+        log.info("[websocket请求与响应：游戏对战阶段] 玩家2：" + loser.getUsername() + "，开始记录对战记录！");
+        record2.setUid1(loser.getUid());
+        record2.setUid2(winner.getUid());
+        record2.setEnemy(winner.getUsername());
+        record2.setOldScore(originLoserScore);
+        record2.setChangeNum(changeNum2);
+        record2.setTotalCount(loser.getTotalCount() + 1);
+        record2.setWinnerCount(loser.getWinCount());
+        record2.setWinnerRate(100.00 * record2.getWinnerCount() / record2.getTotalCount());
+        record2.setIsWinner(false);
+        record2.setLastScore(loserScore);
+        log.info("[websocket请求与响应：游戏对战阶段] 玩家2：" + loser.getUsername() + "，完成记录对战记录！");
+        recordService.savePlayRecords(record1, record2);
+        log.info("[websocket请求与响应：游戏对战阶段] 游戏结算成功！");
+    }
+
+    //平局游戏分数结算
+    public void equalHandlerScore(User thisPlayer, User thatPlayer, UserService userService, RecordService recordService) {
+        if (thisPlayer == null || thatPlayer == null) {
+            log.info("[websocket 游戏对战阶段] 无效的选手！");
+            return;
+        }
+        userService.updateDrawScore(thisPlayer);
+        userService.updateDrawScore(thatPlayer);
+        //记录对局数据
+        GobangPlayRecord record1 = new GobangPlayRecord();
+        GobangPlayRecord record2 = new GobangPlayRecord();
+
+        record1.setUid1(thisPlayer.getUid());
+        record1.setUid2(thatPlayer.getUid());
+        record1.setEnemy(thatPlayer.getUsername());
+        record1.setOldScore(thisPlayer.getScore());
+        record1.setWinnerCount(thisPlayer.getWinCount());
+        record1.setTotalCount(thisPlayer.getTotalCount() + 1);
+        record1.setChangeNum(0);
+        record1.setWinnerRate(100.00 * record1.getWinnerCount() / record1.getTotalCount());
+        record1.setIsWinner(false);
+        record1.setLastScore(thisPlayer.getScore());
+
+        record2.setUid1(thatPlayer.getUid());
+        record2.setUid2(thisPlayer.getUid());
+        record2.setEnemy(thisPlayer.getUsername());
+        record2.setOldScore(thatPlayer.getScore());
+        record2.setWinnerCount(thatPlayer.getWinCount());
+        record2.setTotalCount(thatPlayer.getTotalCount() + 1);
+        record2.setChangeNum(0);
+        record1.setWinnerRate(100.00 * record1.getWinnerCount() / record1.getTotalCount());
+        record2.setIsWinner(false);
+        record2.setLastScore(thatPlayer.getScore());
+
+        recordService.savePlayRecords(record1, record2);
     }
     //打印棋盘，便于调试
     public void printChessBoard() {

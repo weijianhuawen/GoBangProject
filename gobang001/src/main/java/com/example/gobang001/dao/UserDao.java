@@ -2,6 +2,7 @@ package com.example.gobang001.dao;
 
 import com.example.gobang001.mode.User;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 @Mapper
 public interface UserDao {
@@ -11,11 +12,11 @@ public interface UserDao {
     public Integer insertUser(User user);
 
     //更新胜利者的战绩
-    public Integer updateWinnerScore(User user, Integer winnerScore);
+    public Integer updateWinnerScore(@Param("user") User user, Integer winnerScore);
 
     //更新失败方的战绩
-    public Integer updateLoserScore(User user, Integer loserScore);
+    public Integer updateLoserScore(@Param("user") User user, Integer loserScore);
 
     //更新平手时两位玩家的战绩
-    public Integer updateDrawScore(User user);
+    public Integer updateDrawScore(@Param("user") User user);
 }

@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+    <!-- 页面meta -->
+    <meta charset="utf-8">
+    <title>在线五子棋全网对战查询</title>
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="./plugins/elementui/index.css">
+    <link rel="stylesheet" href="./plugins/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="./css/style.css">
+</head>
+
+<body class="hold-transition">
+
+<div id="app">
+
+    <div class="content-header">
+        <h1>在线五子棋个人对战查询</h1>
+    </div>
+
+    <div class="app-container">
+        <div class="box">
+            <el-row>
+                <el-button type="primary" @click="back">返回</el-button>
+            </el-row>
+
+            <!-- <el-table size="small" current-row-key="id" :data="dataList" stripe highlight-current-row>
+                <el-table-column type="index" align="center" label="序号"></el-table-column>
+                <el-table-column prop="classify" label="图书类别" align="center"></el-table-column>
+                <el-table-column prop="name" label="图书名称" align="center"></el-table-column>
+                <el-table-column prop="description" label="描述" align="center"></el-table-column>
+                <el-table-column label="操作" align="center">
+                    <template slot-scope="scope">
+                        <el-button type="primary" size="mini" @click="handleUpdate(scope.row)">编辑</el-button>
+                        <el-button type="danger" size="mini" @click="handleDelete(scope.row)">删除</el-button>
+                    </template>
+                </el-table-column>
+            </el-table> -->
+
+            <el-table :data="pagination.pageTicket" size="small" current-row-key="id" stripe highlight-current-row>
+                <el-table-column
+                        prop="uid"
+                        label="玩家ID"
+                        width="80"
+                ></el-table-column>
+                <el-table-column prop="enemyUid" label="对手 ID" width="80">
+                </el-table-column>
+                <el-table-column prop="username" label="玩家昵称" width="150">
+                </el-table-column>
+                <el-table-column prop='enemyName' label="对手昵称" width="150">
+                </el-table-column>
+                <el-table-column
+                        prop="changeNum"
+                        label="分数变化"
+                        width="100"
+                ></el-table-column>
+                <el-table-column
+                        prop="score"
+                        label="当前分数"
+                        width="120"
+                ></el-table-column>
+                <el-table-column
+                        prop="preScore"
+                        label="上一次分数"
+                        width="120"
+                ></el-table-column>
+                <el-table-column
+                        prop="winCount"
+                        label="胜场"
+                        width="100"
+                ></el-table-column>
+                <el-table-column
+                        prop="totalCount"
+                        label="总场数"
+                        width="100"
+                ></el-table-column>
+                <el-table-column
+                        prop="winRate"
+                        label="胜率（%）"
+                        width="120"
+                ></el-table-column>
+                <el-table-column label="是否获胜" width="100">
+                    <template slot-scope="scope">
+                        {{ scope.row.isWinner == 1 ? "是" : "否" }}
+                    </template>
+                </el-table-column>
+                <el-table-column
+                        prop="updateTime"
+                        label="更新时间"
+                        width="240"
+                ></el-table-column>
+                <!-- <el-table-column label="操作">
+                  <el-button type="primary" size="mini">编辑</el-button>
+                  <el-button type="danger" size="mini">删除</el-button>
+                </el-table-column> -->
+            </el-table>
+
+            <div class="pagination-container">
+                <el-pagination
+                        class="pagiantion"
+                        @size-change="handleSizeChange"
+                        @current-change="handleCurrentChange"
+                        :current-page="pagination.currentPage"
+                        :page-sizes="[5, 10, 20, 50]"
+                        :page-size="pagination.pageSize"
+                        layout="total, sizes, prev, pager, next, jumper"
+                        :total="pagination.total">
+                </el-pagination>
+
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+
+<!-- 引入组件库 -->
+<script src="./js/vue.js"></script>
+<script src="./plugins/elementui/index.js"></script>
+<script type="text/javascript" src="./js/jquery.min.js"></script>
+<script src="./js/axios-0.18.0.js"></script>
+
+<script>
+    var vue = new Vue({
+
+        el: '#app',
+
+        data:{
+            searchForm: {
+                uid: 0,
+                enemyUid: 0,
+                username: '',
+                enemyName: '',
+                changeNum: 0,
+                score: 0,
+                preScore: 0,
+                winCount: 0,
+                totalCount: 0,
+                winRate: 0.00,
+                isWinner: true,
+                updateTime: ''
+            },
+            value: [],
+            addEmpForm: {
+                uid1: 0,
+                uid2: 0
+            },
+            dataList: [],//当前页要展示的分页列表数据
+            formData: {},//表单数据
+            pagination: {
+                total:0,  //总数据条数
+                currentPage:1,  //当前所在页默认是第一页
+                pageSize:5,  //每页显示多少行数据 默认设置为10
+                pageTicket:[],//分页后的当前页数据
+            },//分页模型数据，暂时弃用
+        },
+
+        //钩子函数，VUE对象初始化完成后自动执行
+        created() {
+            this.getAll();
+        },
+
+        methods: {
+            //主页列表查询
+            getAll() {
+                axios.get("/record").then((res)=>{
+                    if (res.data.state === 301) {
+                        this.dataList = res.data.data;
+                        this.pagination.total = this.dataList.length;
+                        this.pageInfo();
+                        this.$message.success("数据加载成功！");
+                    } else if (res.data.state === 930) {
+                        this.$message.error(res.data.message);
+                    } else {
+                        this.$message.error(res.data.message);
+                    }
+                });
+            },
+            pageInfo() {
+                //清空pageTicket中的数据
+                this.pagination.pageTicket=[];
+                // 获取当前页的数据
+                for(var i=(this.pagination.currentPage-1)*this.pagination.pageSize;i<this.pagination.total;i++){
+                    //把遍历的数据添加到pageTicket里面
+                    this.pagination.pageTicket.push(this.dataList[i]);
+                    //判断是否达到一页的要求
+                    if(this.pagination.pageTicket.length===this.pagination.pageSize) break;
+                }
+            },
+            handleCurrentChange(pageNum) {
+                this.pagination.currentPage=pageNum;
+                this.pageInfo();
+            },
+            //分页时修改每页的行数,这里会自动传入一个size
+            handleSizeChange(size){
+                //修改当前每页的数据行数
+                this.pagination.pageSize=size;
+                //数据重新分页
+                this.pageInfo();
+            },
+            back() {
+                location.assign('games_hall.html');
+            }
+        }
+    })
+</script>
+</html>

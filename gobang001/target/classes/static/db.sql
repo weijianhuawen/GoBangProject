@@ -65,6 +65,12 @@ create table play_record (
                              cur_score int default 0,
     -- 结算前的分数
                              pre_score int default 0,
+    -- 当前结算后胜场
+                             cur_winner_count int default 0,
+    -- 当前结算后的总胜场
+                             cur_total_count int default 0,
+    -- 当前结算后的胜率
+                             cur_winner_rate double(8, 2) default 0,
     -- 是否获胜
                              is_winner int default 1,
     -- 结算时间

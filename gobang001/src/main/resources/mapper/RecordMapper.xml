@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.gobang001.dao.RecordDao">
+    <resultMap id="recordMap" type="com.example.gobang001.mode.GobangPlayRecord">
+        <id column="rid" property="rid"/>
+
+        <result column="uid1" property="uid1"/>
+        <result column="uid2" property="uid2"/>
+        <result column="enemy" property="enemy"/>
+        <result column="change_num" property="changeNum"/>
+        <result column="cur_score" property="lastScore"/>
+        <result column="pre_score" property="oldScore"/>
+        <result column="cur_winner_count" property="winnerCount"/>
+        <result column="cur_total_count" property="totalCount"/>
+        <result column="cur_winner_rate" property="winnerRate"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="is_winner" property="isWinner"/>
+    </resultMap>
+    <insert id="insertRecordByGobangPlayRecord">
+        insert into play_record(uid1, uid2, enemy, change_num, cur_score, pre_score, cur_winner_count, cur_total_count, cur_winner_rate, is_winner, update_time)
+        values (#{record.uid1},
+                #{record.uid2},
+                #{record.enemy},
+                #{record.changeNum},
+                #{record.lastScore},
+                #{record.oldScore},
+                #{record.winnerCount},
+                #{record.totalCount},
+                #{record.winnerRate},
+                #{record.isWinner},
+                now()
+                );
+    </insert>
+    <update id="updatePlayRecord">
+        update play_record set
+                               uid1=#{record.uid1},
+                               uid2=#{record.uid2},
+                               enemy=#{record.enemy},
+                               change_num=#{record.changeNum},
+                               cur_score=#{record.lastScore},
+                               pre_score=#{record.oldScore},
+                               cur_winner_count=#{record.winnerCount},
+                               cur_total_count=#{record.totalCount},
+                               cur_winner_rate=100*cur_winner_count/cur_total_count,
+                               is_winner=#{record.isWinner},
+                               update_time=now()
+        where rid=#{record.rid};
+    </update>
+    <delete id="deleteByUid">
+        delete from play_record where uid1=#{uid};
+    </delete>
+    <delete id="deleteByRid">
+        delete from play_record where rid=#{rid};
+    </delete>
+
+    <select id="selectRecordByAll" resultMap="recordMap">
+        select * from play_record;
+    </select>
+
+    <select id="selectRecordByUid1" resultMap="recordMap">
+        select * from play_record where uid1=#{uid1};
+    </select>
+
+    <select id="selectRecordByUid2" resultMap="recordMap">
+        select * from play_record where uid1=#{uid2};
+    </select>
+
+    <select id="selectRecordByTwoPlayerUid" resultMap="recordMap">
+        select * from play_record where uid1=#{uid1} and uid2=#{uid2};
+    </select>
+
+    <select id="selectRecordByChangeScore" resultMap="recordMap">
+        select * from play_record where change_num=#{changeScore};
+    </select>
+
+    <select id="selectRecordByLastScore" resultMap="recordMap">
+        select * from play_record where cur_score=#{lastScore};
+    </select>
+    <select id="selectRecordByRid" resultMap="recordMap">
+        select * from play_record where rid=#{rid};
+    </select>
+    <select id="selectRecordByUpdateTime" resultMap="recordMap">
+        select * from play_record where update_time >= #{startTime} and update_time <![CDATA[ <= ]]> #{endTime};
+    </select>
+</mapper>

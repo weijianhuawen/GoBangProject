@@ -7,6 +7,7 @@ public class ResultPackage<T> {
     //数据
     private T data;
     //状态码 100表示ok
+//    private Code state;
     private Integer state;
     //响应结果是否顺利
     private Boolean isOk;

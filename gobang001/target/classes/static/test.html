@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>图片切换小案例</title>
+</head>
+<body>
+
+    <div id="app">
+     
+        <div id="imgContainer"> 
+            <img :src="imgs[index]" alt="">
+        </div>
+        <div class="ibt">
+            <button v-if="index > 0"  @click="prev()">上一张图片</button>
+            <button v-if="index < imgs.length - 1" @click="next()">下一张图片</button>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+    <script>
+        const app = new Vue({
+            el: "#app",
+            data: {
+                index: 0,
+                imgs: [
+                    "./img/1.jpg",
+                    "./img/2.jpg",
+                    "./img/3.jpeg",
+                    "./img/4.jpeg",
+                    "./img/5.jpeg",
+                    "./img/6.jpeg",
+                    "./img/7.jpeg"
+                ]
+            },
+            methods: {
+                next : function() {
+                    if (this.index < this.imgs.length - 1) this.index++;
+                },
+                prev: function() {
+                    if (this.index > 0) this.index--;
+                 }
+            },
+        });
+    </script>
+
+</body>
+<style>
+    .ibt {
+        display: flex;
+
+    }
+    button{
+        width: 80px;
+        height: 32px;
+
+        font-size: 8px;
+        border-radius: 10px;
+        border-color: rgba(80, 150, 244, 0.8);
+        color: aliceblue;
+        border-style: hidden;
+        outline: hidden;
+        background-color: rgba(80, 150, 244, 0.9);
+
+
+        margin: 20px;
+
+        display: block;
+    }
+/* 点击效果:伪类选择器 */
+    button:active {
+        background-color: rgba(209, 168, 226, 0.9);
+    }
+    #imgContainer {
+        width:  1000px;
+        height: 600px;
+        border: 10px;
+    }
+</style>
+</html>

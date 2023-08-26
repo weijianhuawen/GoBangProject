@@ -28,4 +28,6 @@ public class WebsocketConfig implements WebSocketConfigurer {
         registry.addHandler(gameController, "/game")
                 .addInterceptors(new HttpSessionHandshakeInterceptor());
     }
+
+
 }

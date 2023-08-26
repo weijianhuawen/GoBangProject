@@ -1,5 +1,6 @@
 package com.example.gobang001.controller;
 
+import com.example.gobang001.mode.Code;
 import com.example.gobang001.mode.ResultPackage;
 import com.example.gobang001.mode.User;
 import com.example.gobang001.service.UserService;
@@ -106,6 +107,7 @@ public class UserController {
         resultPackage.setMessage("注册成功!");
         resultPackage.setIsOk(true);
         resultPackage.setState(100);
+//        resultPackage.setState(Code.REGISTER_SUCCESS);
         return resultPackage;
     }
 
@@ -114,6 +116,7 @@ public class UserController {
     public Object getUserInfo(HttpServletRequest request) {
         ResultPackage<User> resultPackage = new ResultPackage<>();
         resultPackage.setState(-1);
+//        resultPackage.setState(Code.REGISTER_ERR);
 
         //从session中获取用户信息
         HttpSession session = request.getSession(false);
